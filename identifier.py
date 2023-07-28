@@ -4,7 +4,6 @@ from PIL import Image
 import requests
 from io import BytesIO
 
-# Load the pre-trained MobileNet model for image classification
 model_url = "https://tfhub.dev/google/tf2-preview/mobilenet_v2/classification/4"
 try:
     model = hub.load(model_url)
@@ -63,7 +62,7 @@ def classify_waste(input_image, image_type='url'):
 
 if __name__ == "__main__":
     try: 
-        image_url = r"C:\Users\naray\Downloads\test_image.jfif"
+        image_url = r"Path_to_image"
         waste_category, recycling_instruction = classify_waste(image_url, image_type='url')
         print("Detected waste category:", waste_category)
         print("Recycling instructions:", recycling_instruction)
