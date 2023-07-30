@@ -14,7 +14,7 @@ def relative_to_assets(path: str) -> Path:
 from tkinter import filedialog
 from PIL import Image, ImageTk
 
-photo =str()
+
 def open_image():
     file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.png;*.jpg;*.jpeg;*.gif")])
     if file_path:
