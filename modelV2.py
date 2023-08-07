@@ -4,8 +4,9 @@ from tensorflow.keras import layers, models, optimizers
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 # Path to your dataset directory
-train_data_dir = r"C:\Users\naray\Desktop\Homework\Computer Science\dataset.zip\Garbage classification\Garbage classification"
-validation_data_dir = r"C:\Users\naray\Desktop\Homework\Computer Science\dataset.zip\one-indexed-files-notrash_val.txt"
+train_data_dir = r"" #training data
+validation_data_dir = r"" #validation data
+
 
 # Image size for MobileNetV2 input
 image_size = (224, 224)
