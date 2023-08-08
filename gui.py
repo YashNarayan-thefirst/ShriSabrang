@@ -55,8 +55,8 @@ def open_image():
         image_label.config(image=photo)
         image_label.photo = photo
         waste_category, recycling_instruction = classify_waste_image(file_path)
-        result_text = Label(window, text="", font=("Helvetica", 14), bg="#FFFFFF")
-        result_text.place(x=1280 * 0.3, y=300)
+        result_text = Label(window, text="", font=("Helvetica", 12), bg="#FFFFFF")
+        result_text.place(x=1280 * 0.3, y=450)
         result_text.config(text=f"Detected waste category: {waste_category}\nRecycling instructions: {recycling_instruction}")
 
     return None
