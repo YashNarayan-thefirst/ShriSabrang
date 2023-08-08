@@ -25,7 +25,8 @@ def classify_waste_image(image_path):
         2: "Metal",
         3: "Paper",
         4: "Plastic",
-        5: "Trash"
+        5: "Trash",
+        6: "Misc"
     }
 
     waste_category = waste_categories.get(int(predicted_class_idx), "Unknown")
@@ -36,7 +37,8 @@ def classify_waste_image(image_path):
         "Metal": "Metal can be recycled by placing it in recycling bins. Remove any non-recyclable parts.",
         "Paper": "Paper can be recycled by placing it in recycling bins. Avoid soiled or wet paper.",
         "Plastic": "Plastic can be recycled by placing it in recycling bins. Check the recycling number for specific instructions.",
-        "Trash": "This item is not recyclable. Please dispose of it properly."
+        "Trash": "This item is not recyclable. Please dispose of it properly.",
+        "Misc": "This only appears when an error occurs. Please try again"
     }
 
     recycling_instruction = recycling_instructions.get(waste_category, "Recycling information not available.")
@@ -46,7 +48,7 @@ def classify_waste_image(image_path):
 if __name__ == "__main__":
     try:
         # Replace 'your_image.jpg' with the path to your local image file
-        image_file_path = r"your_inage.jpg"
+        image_file_path = r"C:\Users\naray\Desktop\Shri_sabrang 2\Garbage classification\Garbage classification\trash\trash33.jpg"
         waste_category, recycling_instruction = classify_waste_image(image_file_path)
         print("Detected waste category:", waste_category)
         print("Recycling instructions:", recycling_instruction)
