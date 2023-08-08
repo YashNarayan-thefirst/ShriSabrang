@@ -205,7 +205,7 @@ try:
         width=203.0,
         height=81.28125
     )
-    main_menu_image = PhotoImage(file="G20.png")  # Replace with your image file
+    main_menu_image = PhotoImage(file="G20.png")  # Replace with file path
     main_menu_image_label = Label(canvas, image=main_menu_image)
     main_menu_image_label.place(x=600, y=50) 
 
