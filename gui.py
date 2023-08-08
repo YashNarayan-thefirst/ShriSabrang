@@ -1,6 +1,6 @@
 from tkinter import Tk, Canvas, Button, Label, PhotoImage
 from tkinter import filedialog
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageDraw,ImageFont
 import tensorflow as tf
 import tensorflow_hub as hub
 
@@ -124,6 +124,21 @@ def display_image(classification_image_label, classification_result_text):
     if file_path:
         image = Image.open(file_path)
         image.thumbnail((1280 * 0.7, 720))
+
+        image = image.resize((640, 360))  # Change the dimensions as needed
+        # Add text to the image
+        draw = ImageDraw.Draw(image)
+        text = "Shri Sabrang Project By Yash Narayan and Pranay Narang"
+        font = ImageFont.truetype("arial.ttf", 20)  # Specify the font and size
+        
+        # Calculate the text width and position it at the bottom center
+        text_width, text_height = draw.textsize(text, font)
+        x = (image.width - text_width) // 2
+        y = image.height - text_height - 10  # Leave some space from the bottom
+        
+        draw.text((x, y), text, fill=(255, 255, 255), font=font)  # Fill color is white
+        
+
         photo = ImageTk.PhotoImage(image)
         classification_image_label.config(image=photo)
         classification_image_label.photo = photo
