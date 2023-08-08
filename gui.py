@@ -3,7 +3,8 @@ from tkinter import filedialog
 from PIL import Image, ImageTk
 import tensorflow as tf
 import tensorflow_hub as hub
-global result_text
+
+# Function to classify waste image
 model = tf.keras.models.load_model('garbage_classification_model.h5', custom_objects={'KerasLayer': hub.KerasLayer})
 
 def classify_waste_image(image_path):
@@ -46,87 +47,153 @@ def classify_waste_image(image_path):
 
     return waste_category, recycling_instruction
 
-def open_image():
+def open_classification_window():
+    window.withdraw()  # Hide the main menu window
+    classification_window = Tk()
+    classification_window.geometry("1280x720")
+    classification_window.title("Image Classification")
+
+    # Create canvas and rectangle
+    classification_canvas = Canvas(
+        classification_window,
+        bg="white",
+        height=720,
+        width=1280,
+        bd=0,
+        highlightthickness=0,
+        relief="ridge"
+    )
+    classification_canvas.place(x=0, y=0)
+    classification_canvas.create_rectangle(
+        0.0,
+        0.0,
+        384.0,
+        720.0,
+        fill="#36A692",
+        outline="")
+
+    # Create image label and result text
+    classification_image_label = Label(classification_window)
+    classification_result_text = Label(
+        classification_window,
+        text="",
+        font=("Helvetica", 12),
+        bg="#FFFFFF"
+    )
+    classification_result_text.place(x=1280 * 0.3, y=450)
+
+    open_image_button = Button(
+        classification_window,
+        text="Open Image",
+        bg="#FF7F50",
+        activebackground="#FF6347",
+        borderwidth=0,
+        highlightthickness=0,
+        command=lambda: display_image(classification_image_label, classification_result_text),
+        relief="flat"
+    )
+    open_image_button.place(
+        x=33.0,
+        y=136.0,
+        width=316.0 - 4,
+        height=124.0
+    )
+
+    close_button = Button(
+        classification_window,
+        text="Close",
+        bg="#FF7F50",
+        activebackground="#FF6347",
+        borderwidth=0,
+        highlightthickness=0,
+        command=classification_window.destroy,  # Close the classification window
+        relief="flat"
+    )
+    close_button.place(
+        x=92.0,
+        y=547.0,
+        width=203.0,
+        height=81.28125
+    )
+
+    classification_window.mainloop()
+
+# Function to open the image and display it in the classification window
+def display_image(classification_image_label, classification_result_text):
     file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.png;*.jpg;*.jpeg;*.gif")])
     if file_path:
         image = Image.open(file_path)
         image.thumbnail((1280 * 0.7, 720))
         photo = ImageTk.PhotoImage(image)
-        image_label.config(image=photo)
-        image_label.photo = photo
+        classification_image_label.config(image=photo)
+        classification_image_label.photo = photo
         waste_category, recycling_instruction = classify_waste_image(file_path)
-        result_text = Label(window, text="", font=("Helvetica", 12), bg="#FFFFFF")
-        result_text.place(x=1280 * 0.3, y=450)
-        result_text.config(text=f"Detected waste category: {waste_category}\nRecycling instructions: {recycling_instruction}")
-
-    return None
-
-def display_image():
-    photo = open_image()
-    if photo:
-        image_label.config(image=photo)
-        image_label.photo = photo
-    else:
-        image_label.config(image=None)
-        result_text.config(text="")
-
+        classification_result_text.config(
+            text=f"Detected waste category: {waste_category}\nRecycling instructions: {recycling_instruction}"
+        )
+# Function to close the application
 def close_window():
     window.destroy()
+try: 
+    window = Tk()
+    window.geometry("1280x720")
+    window.title("Main Menu")
 
-window = Tk()
-window.geometry("1280x720")
-window.configure(bg="#FFFFFF")
+    # Create canvas and rectangle
+    canvas = Canvas(
+        window,
+        bg="white",
+        height=720,
+        width=1280,
+        bd=0,
+        highlightthickness=0,
+        relief="ridge"
+    )
+    canvas.place(x=0, y=0)
+    canvas.create_rectangle(
+        0.0,
+        0.0,
+        384.0,
+        720.0,
+        fill="#36A692",
+        outline="")
 
-canvas = Canvas(
-    window,
-    bg="#FFFFFF",
-    height=720,
-    width=1280,
-    bd=0,
-    highlightthickness=0,
-    relief="ridge"
-)
-canvas.place(x=0, y=0)
-canvas.create_rectangle(
-    0.0,
-    0.0,
-    384.0,
-    720.0,
-    fill="#36A692",
-    outline="")
+    # Create buttons for main menu
+    classification_button = Button(
+        text="Open Image Classification",
+        bg="#FF7F50",
+        activebackground="#FF6347",
+        borderwidth=0,
+        highlightthickness=0,
+        command=open_classification_window,
+        relief="flat"
+    )
+    classification_button.place(
+        x=33.0,
+        y=136.0,
+        width=316.0 - 4,
+        height=124.0
+    )
 
-button_1 = Button(
-    text="Open Image",
-    bg="#FF7F50",  # Button background color
-    activebackground="#FF6347",  # Background color when clicked
-    borderwidth=0,
-    highlightthickness=0,
-    command=display_image,
-    relief="flat"
-)
-button_1.place(
-    x=33.0,
-    y=136.0,
-    width=316.0 - 4,
-    height=124.0
-)
+    exit_button = Button(
+        text="Exit",
+        bg="#FF7F50",
+        activebackground="#FF6347",
+        borderwidth=0,
+        highlightthickness=0,
+        command=close_window,
+        relief="flat"
+    )
+    exit_button.place(
+        x=92.0,
+        y=547.0,
+        width=203.0,
+        height=81.28125
+    )
+    main_menu_image = PhotoImage(file="G20.png")  # Replace with your image file
+    main_menu_image_label = Label(canvas, image=main_menu_image)
+    main_menu_image_label.place(x=600, y=50) 
 
-button_2 = Button(
-    text="Close",
-    bg="#FF7F50",  # Button background color
-    activebackground="#FF6347",  # Background color when clicked
-    borderwidth=0,
-    highlightthickness=0,
-    command=close_window,
-    relief="flat"
-)
-button_2.place(
-    x=92.0,
-    y=547.0,
-    width=203.0,
-    height=81.28125
-)
-
-image_label = Label(window)
-image_label.place(x=1280 * 0.3, y=0)
-window.mainloop()
+    window.mainloop()
+except Exception as e:
+    print(e)
