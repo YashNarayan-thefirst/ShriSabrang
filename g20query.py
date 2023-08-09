@@ -68,15 +68,9 @@ try:
             data = (title, content.strip())
             cursor.execute(insert_query, data)
             db.commit()
-
-            print(f"Inserted data: Title='{title}', Content='{content[:50]}...'")
-
     else:
         print("Request failed with status code:", response.status_code)
 
-    # Perform a search
-    search_string = input("Enter a search string: ")
-    search_database(search_string)
 
 except Exception as e:
     print("An error occurred:", e)
