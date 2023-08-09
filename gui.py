@@ -1,24 +1,23 @@
 import PySimpleGUI as sg
-from PIL import Image, ImageDraw, ImageFont, ImageTk
+from PIL import Image, ImageTk
 import tensorflow as tf
 import tensorflow_hub as hub
 import io
-import numpy as np
+from g20query import search_database  
+import mysql.connector
+
 # Function to classify waste image
 model = tf.keras.models.load_model('garbage_classification_model.h5', custom_objects={'KerasLayer': hub.KerasLayer})
-
 
 def classify_waste_image(image_path):
     image_size = (224, 224)
 
-    # Load the image using PIL
     image = Image.open(image_path)
     image = image.resize(image_size)
     image_array = tf.keras.preprocessing.image.img_to_array(image)
     image_array = image_array / 255.0
     image_array = tf.expand_dims(image_array, axis=0)
 
-    # Make the prediction
     predictions = model.predict(image_array)
     predicted_class_idx = tf.argmax(predictions, axis=1)[0]
 
@@ -49,15 +48,19 @@ def classify_waste_image(image_path):
     return waste_category, recycling_instruction
 
 layout_main_menu = [
-    [sg.Text("Main Menu", font=("Helvetica", 30))],
-    [sg.Button("Open Image Classification", font=("Helvetica", 20)), sg.Button("Exit", font=("Helvetica", 20))],
+    [sg.Text("Shri Sabrang Project", font=("Helvetica", 30))],
+    [sg.Text("Made by Yash Narayan", font=("Helvetica", 16))],
+    [sg.InputText(key='-SEARCH-', font=("Helvetica", 20)), sg.Button("Search", font=("Helvetica", 20))],
+    [sg.Text("", font=("Helvetica", 10), key='-SEARCH-RESULT-')],
     [sg.Image(data='', key='-IMAGE-', size=(640, 360))],
+    [sg.Button("Open Image Classification", font=("Helvetica", 20))],
+    [sg.Button("Exit", font=("Helvetica", 20))]
 ]
 
 layout_classification = [
     [sg.Text("Image Classification", font=("Helvetica", 30))],
     [sg.Image(data='', key='-CLASSIFIED-', size=(640, 360))],
-    [sg.Text("", font=("Helvetica", 20), key='-RESULT-')],
+    [sg.Text("", font=("Helvetica", 10), key='-RESULT-')],
     [sg.Button("Open Image", font=("Helvetica", 20)), sg.Button("Close", font=("Helvetica", 20))]
 ]
 
@@ -70,6 +73,15 @@ while True:
 
         if event == sg.WINDOW_CLOSED or event == 'Exit':
             break
+
+        if event == 'Search':
+            search_string = values['-SEARCH-']
+            search_result = search_database(search_string)
+            if search_result:
+                shortened_result = search_result[:500] + '...' if len(search_result) > 500 else search_result
+                window_main_menu['-SEARCH-RESULT-'].update(f"Search Result:\n{shortened_result}")
+            else:
+                window_main_menu['-SEARCH-RESULT-'].update("No matching data found.")
 
         if event == 'Open Image Classification':
             window_main_menu.hide()
@@ -92,7 +104,6 @@ while True:
                             image = Image.open(image_path)
                             image.thumbnail((640, 360))
 
-                            # Convert PIL image to bytes and display using PySimpleGUI
                             img_byte_array = io.BytesIO()
                             image.save(img_byte_array, format="PNG")
                             img_data = img_byte_array.getvalue()
