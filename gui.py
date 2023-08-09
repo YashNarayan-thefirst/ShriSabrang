@@ -46,15 +46,16 @@ def classify_waste_image(image_path):
     recycling_instruction = recycling_instructions.get(waste_category, "Recycling information not available.")
 
     return waste_category, recycling_instruction
-
 layout_main_menu = [
     [sg.Text("Shri Sabrang Project", font=("Helvetica", 30))],
     [sg.Text("Made by Yash Narayan", font=("Helvetica", 16))],
-    [sg.InputText(key='-SEARCH-', font=("Helvetica", 20)), sg.Button("Search", font=("Helvetica", 20))],
-    [sg.Text("", font=("Helvetica", 10), key='-SEARCH-RESULT-')],
-    [sg.Image(data='', key='-IMAGE-', size=(640, 360))],
-    [sg.Button("Open Image Classification", font=("Helvetica", 20))],
-    [sg.Button("Exit", font=("Helvetica", 20))]
+    [sg.InputText(key='-SEARCH-', font=("Helvetica", 20)), sg.Button("Search", font=("Helvetica", 18))],
+    [sg.Multiline("", key='-SEARCH-RESULT-', size=(100, 6), font=("Helvetica", 10), disabled=True, autoscroll=False, background_color='gray')],
+    [sg.Column([
+        [sg.Button("Open Image Classification", font=("Helvetica", 20))],
+        [sg.Button("Exit", font=("Helvetica", 20))]
+    ], element_justification='left')],
+    [sg.Image(data='', key='-IMAGE-', size=(640, 360))]
 ]
 
 layout_classification = [
