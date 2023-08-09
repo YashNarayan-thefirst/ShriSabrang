@@ -1,11 +1,12 @@
-from tkinter import Tk, Canvas, Button, Label, PhotoImage
-from tkinter import filedialog
-from PIL import Image, ImageTk, ImageDraw,ImageFont
+import PySimpleGUI as sg
+from PIL import Image, ImageDraw, ImageFont, ImageTk
 import tensorflow as tf
 import tensorflow_hub as hub
-
+import io
+import numpy as np
 # Function to classify waste image
 model = tf.keras.models.load_model('garbage_classification_model.h5', custom_objects={'KerasLayer': hub.KerasLayer})
+
 
 def classify_waste_image(image_path):
     image_size = (224, 224)
@@ -47,168 +48,61 @@ def classify_waste_image(image_path):
 
     return waste_category, recycling_instruction
 
-def open_classification_window():
-    window.withdraw()  # Hide the main menu window
-    classification_window = Tk()
-    classification_window.geometry("1280x720")
-    classification_window.title("Image Classification")
+layout_main_menu = [
+    [sg.Text("Main Menu", font=("Helvetica", 30))],
+    [sg.Button("Open Image Classification", font=("Helvetica", 20)), sg.Button("Exit", font=("Helvetica", 20))],
+    [sg.Image(data='', key='-IMAGE-', size=(640, 360))],
+]
 
-    # Create canvas and rectangle
-    classification_canvas = Canvas(
-        classification_window,
-        bg="white",
-        height=720,
-        width=1280,
-        bd=0,
-        highlightthickness=0,
-        relief="ridge"
-    )
-    classification_canvas.place(x=0, y=0)
-    classification_canvas.create_rectangle(
-        0.0,
-        0.0,
-        384.0,
-        720.0,
-        fill="#36A692",
-        outline="")
+layout_classification = [
+    [sg.Text("Image Classification", font=("Helvetica", 30))],
+    [sg.Image(data='', key='-CLASSIFIED-', size=(640, 360))],
+    [sg.Text("", font=("Helvetica", 20), key='-RESULT-')],
+    [sg.Button("Open Image", font=("Helvetica", 20)), sg.Button("Close", font=("Helvetica", 20))]
+]
 
-    # Create image label and result text
-    classification_image_label = Label(classification_window)
-    classification_result_text = Label(
-        classification_window,
-        text="",
-        font=("Helvetica", 12),
-        bg="#FFFFFF"
-    )
-    classification_result_text.place(x=1280 * 0.3, y=450)
+window_main_menu = sg.Window("Main Menu", layout_main_menu, finalize=True, size=(800, 600))
+window_classification = None
 
-    open_image_button = Button(
-        classification_window,
-        text="Open Image",
-        bg="#FF7F50",
-        activebackground="#FF6347",
-        borderwidth=0,
-        highlightthickness=0,
-        command=lambda: display_image(classification_image_label, classification_result_text),
-        relief="flat"
-    )
-    open_image_button.place(
-        x=33.0,
-        y=136.0,
-        width=316.0 - 4,
-        height=124.0
-    )
+while True:
+    try:
+        event, values = window_main_menu.read()
 
-    close_button = Button(
-        classification_window,
-        text="Close",
-        bg="#FF7F50",
-        activebackground="#FF6347",
-        borderwidth=0,
-        highlightthickness=0,
-        command=classification_window.destroy,  # Close the classification window
-        relief="flat"
-    )
-    close_button.place(
-        x=92.0,
-        y=547.0,
-        width=203.0,
-        height=81.28125
-    )
+        if event == sg.WINDOW_CLOSED or event == 'Exit':
+            break
 
-    classification_window.mainloop()
+        if event == 'Open Image Classification':
+            window_main_menu.hide()
+            layout = layout_classification
+            window_classification = sg.Window("Image Classification", layout, finalize=True, size=(800, 600))
 
-# Function to open the image and display it in the classification window
-def display_image(classification_image_label, classification_result_text):
-    file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.png;*.jpg;*.jpeg;*.gif")])
-    if file_path:
-        image = Image.open(file_path)
-        image.thumbnail((1280 * 0.7, 720))
+            while True:
+                try:
+                    event, values = window_classification.read()
 
-        image = image.resize((640, 360))  # Change the dimensions as needed
-        # Add text to the image
-        draw = ImageDraw.Draw(image)
-        text = "Shri Sabrang Project By Yash Narayan and Pranay Narang"
-        font = ImageFont.truetype("arial.ttf", 20)  # Specify the font and size
-        
-        # Calculate the text width and position it at the bottom center
-        text_width, text_height = draw.textsize(text, font)
-        x = (image.width - text_width) // 2
-        y = image.height - text_height - 10  # Leave some space from the bottom
-        
-        draw.text((x, y), text, fill=(255, 255, 255), font=font)  # Fill color is white
-        
+                    if event == sg.WINDOW_CLOSED or event == 'Close':
+                        window_classification.close()
+                        window_main_menu.un_hide()
+                        break
 
-        photo = ImageTk.PhotoImage(image)
-        classification_image_label.config(image=photo)
-        classification_image_label.photo = photo
-        waste_category, recycling_instruction = classify_waste_image(file_path)
-        classification_result_text.config(
-            text=f"Detected waste category: {waste_category}\nRecycling instructions: {recycling_instruction}"
-        )
-# Function to close the application
-def close_window():
-    window.destroy()
-try: 
-    window = Tk()
-    window.geometry("1280x720")
-    window.title("Main Menu")
+                    if event == 'Open Image':
+                        image_path = sg.popup_get_file("Select an image", file_types=(("Image files", "*.png;*.jpg;*.jpeg;*.gif"),))
+                        if image_path:
+                            waste_category, recycling_instruction = classify_waste_image(image_path)
+                            image = Image.open(image_path)
+                            image.thumbnail((640, 360))
 
-    # Create canvas and rectangle
-    canvas = Canvas(
-        window,
-        bg="white",
-        height=720,
-        width=1280,
-        bd=0,
-        highlightthickness=0,
-        relief="ridge"
-    )
-    canvas.place(x=0, y=0)
-    canvas.create_rectangle(
-        0.0,
-        0.0,
-        384.0,
-        720.0,
-        fill="#36A692",
-        outline="")
-
-    # Create buttons for main menu
-    classification_button = Button(
-        text="Open Image Classification",
-        bg="#FF7F50",
-        activebackground="#FF6347",
-        borderwidth=0,
-        highlightthickness=0,
-        command=open_classification_window,
-        relief="flat"
-    )
-    classification_button.place(
-        x=33.0,
-        y=136.0,
-        width=316.0 - 4,
-        height=124.0
-    )
-
-    exit_button = Button(
-        text="Exit",
-        bg="#FF7F50",
-        activebackground="#FF6347",
-        borderwidth=0,
-        highlightthickness=0,
-        command=close_window,
-        relief="flat"
-    )
-    exit_button.place(
-        x=92.0,
-        y=547.0,
-        width=203.0,
-        height=81.28125
-    )
-    main_menu_image = PhotoImage(file="G20.png")  # Replace with file path
-    main_menu_image_label = Label(canvas, image=main_menu_image)
-    main_menu_image_label.place(x=600, y=50) 
-
-    window.mainloop()
-except Exception as e:
-    print(e)
+                            # Convert PIL image to bytes and display using PySimpleGUI
+                            img_byte_array = io.BytesIO()
+                            image.save(img_byte_array, format="PNG")
+                            img_data = img_byte_array.getvalue()
+                            window_classification['-CLASSIFIED-'].update(data=img_data)
+                            window_classification['-RESULT-'].update(f"Detected waste category: {waste_category}\nRecycling instructions: {recycling_instruction}")
+                        else:
+                            sg.popup_error("No image selected")
+                except Exception as classification_error:
+                    print(classification_error)
+                    sg.popup_error(f"An error occurred during image classification: {classification_error}")
+    except Exception as main_menu_error:
+        sg.popup_error(f"An error occurred in the main menu: {main_menu_error}")
+        print(main_menu_error)
