@@ -7,7 +7,7 @@ def search_database(search_string):
         db = mysql.connector.connect(
             host="localhost",
             user="root",
-            password="Yash25082006_",
+            password="",
             database="website_data_db"
         )
 
@@ -34,7 +34,7 @@ try:
     db = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="Yash25082006_"
+        password=""
     )
 
     cursor = db.cursor()
