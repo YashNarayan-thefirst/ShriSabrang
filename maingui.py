@@ -1,7 +1,15 @@
-#searchquery is search input
-#output can be put in entry_2 text
 from pathlib import Path
-from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage, Scrollbar
+from g20query import search_database
+from gui import classify_waste_image
+from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage, Scrollbar, Label
+from tkinter import filedialog
+from PIL import Image, ImageTk,ImagePath
+import tensorflow as tf
+import tensorflow_hub as hub
+from g20query import search_database
+import mysql.connector
+
+
 Font_tuple = ("Inter", 15, "bold")
 from os import getcwd 
 path = getcwd()
@@ -10,17 +18,55 @@ ASSETS_PATH = OUTPUT_PATH / Path(rf"{path}\build\assets\frame0")
 
 
 def relative_to_assets(path: str) -> Path:
-    return ASSETS_PATH / Path(path)
+    return ASSETS_PATH / Path(path) 
 searchquery=''
+
 def submit():
     searchquery = entry_1.get()
-    print(searchquery)
+    result = search_database(searchquery)  # Call the search_database function
+    if result:
+        entry_2.delete(1.0, "end")  # Clear existing text
+        entry_2.insert("insert", result[1]) 
 window = Tk()
-
-window.geometry("1080x607")
-window.configure(bg = "#1B8CC1")
+window.geometry("1280x720")
 
 
+def open_classification_window():
+    def classify_and_display_image():
+        image_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg;*.gif")])
+        if image_path:
+            waste_category, recycling_instruction = classify_waste_image(image_path)
+            classification_result.config(text=f"Detected waste category: {waste_category}\nRecycling instructions: {recycling_instruction}")
+
+            image = Image.open(image_path)
+            image.thumbnail((640, 360))
+            img = ImageTk.PhotoImage(image)
+
+            # Store the PhotoImage as an attribute of classified_image_label
+            classified_image_label.img = img
+            
+            classified_image_label.config(image=img)
+
+
+    classification_window = Tk()
+    classification_window.title("Image Classification")
+
+    classification_label = Label(classification_window, text="Image Classification", font=("Helvetica", 16, "bold"))
+    classification_label.pack(pady=10)
+
+    classify_button = Button(classification_window, text="Classify Image", command=classify_and_display_image, font=("Helvetica", 12))
+    classify_button.pack(pady=5)
+
+    classified_image_label = Label(classification_window)
+    classified_image_label.pack(pady=10)
+
+    classification_result = Label(classification_window, text="", font=("Helvetica", 12))
+    classification_result.pack(pady=10)
+
+    classification_window.mainloop()
+
+
+image_list= []
 canvas = Canvas(
     window,
     bg = "#1B8CC1",
@@ -101,7 +147,7 @@ button_2 = Button(
     image=button_image_2,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: print("button_2 clicked"),
+    command=open_classification_window,  
     relief="flat"
 )
 button_2.place(
