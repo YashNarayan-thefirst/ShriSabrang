@@ -3,7 +3,7 @@ from pathlib import Path
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage,Label
 OUTPUT_PATH = Path(__file__).parent
 p=os.getcwd()
-ASSETS_PATH = OUTPUT_PATH / Path(rf"{p}\assets\frame0")
+ASSETS_PATH = OUTPUT_PATH / Path(rf"{p}")
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 from tkinter import filedialog
@@ -21,7 +21,7 @@ def open_image():
             photo = ImageTk.PhotoImage(image)
             return photo
     else:
-        file_path = rf"{p}/assets/g20.jpeg"
+        file_path = rf"{p}/g20.jpeg"
         if file_path:
             image = Image.open(file_path)
             image.thumbnail((1280*0.7, 720)) 
